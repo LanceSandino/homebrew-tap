@@ -31,9 +31,10 @@ application checkout pinned by `APP_SOURCE_REF`; an optional manual `version`
 must match. For an update, change both source variables to the reviewed release
 commit and regenerate the formula; no workflow version edit is needed.
 
-Published validation runs for formula, verifier, workflow and `test_published*.py`
-changes, or a manual dispatch. Documentation-only branches can be dispatched
-manually to satisfy the same protected native checks before merge.
+Published validation runs for README, documentation, formula, verifier, workflow
+and `test_published*.py` changes on pull requests and branch pushes. All four native
+installation checks must pass on the pull request before merge. Manual dispatch
+is available for additional validation.
 
 Tag API checks use an optional ephemeral job token restricted to the exact
 application tag routes. Public assets remain anonymous; redirects strip
