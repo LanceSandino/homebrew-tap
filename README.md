@@ -1,56 +1,42 @@
 # Lance Sandino's Homebrew tap
 
-Install AWS SSO Profile Sync:
+A shared Homebrew tap for my command-line tools on macOS and Linux. Each formula
+installs a published release and verifies its SHA-256 checksum.
+
+## Available formulas
+
+| Tool | What it does | Install |
+| --- | --- | --- |
+| [AWS SSO Profile Sync](https://github.com/LanceSandino/aws-sso-profile-sync) | Keeps AWS CLI profiles in sync with IAM Identity Center accounts and roles, with explicit login, reviewable plans and guarded updates. | `brew install LanceSandino/tap/aws-sso-profile-sync` |
+
+This table lists every formula currently in the tap. More tools can be added as
+their releases and installation checks are ready.
+
+## Install and update
+
+Install a tool with its fully qualified command from the table; Homebrew adds the
+tap automatically. To add it separately and browse its formulas:
 
 ```sh
-brew install LanceSandino/tap/aws-sso-profile-sync
-brew test LanceSandino/tap/aws-sso-profile-sync
+brew tap LanceSandino/tap
+brew search LanceSandino/tap/
+brew info LanceSandino/tap/aws-sso-profile-sync
 ```
 
-The formula uses the application's published release archives and exact SHA256
-checksums. AWS SSO Profile Sync is a CLI; no GUI, service or AWS CLI dependency is
-installed. Its formula test uses disposable HOME, explicit AWS file paths and only
-offline `--version` and `doctor`. Real AWS acceptance is a separate owner procedure
-documented in the [application repository](https://github.com/LanceSandino/aws-sso-profile-sync).
+Update installed tools with `brew update` followed by `brew upgrade <formula>`.
+Remove a tool with `brew uninstall <formula>`. Removing a formula does not remove
+the application's configuration or data. Read the linked application docs for
+usage, supported platforms, configuration and recovery.
 
-## Validation
+## Maintaining the tap
 
-The candidate workflow checks style, audit and native installation using freshly
-built local archives. Set repository variable `APP_SOURCE_REF` to the exact
-reviewed application commit, or provide `app_ref` when dispatching the candidate
-workflow. The default is `feature/release-review`. Native parser checks preserve
-the exact release version and SemVer build metadata.
+Keep the catalog above in sync with `Formula/`. New tools belong in their own
+formula and need release checksums, license information, supported native targets
+and an offline installation test. Keep each tool's release lifecycle separate;
+adding a formula must not change another tool's release or source pins.
 
-The published workflow validates all four actual public release archives before
-installing the unchanged public formula on Linux amd64/arm64 and macOS Intel/ARM.
-Set `PUBLISHED_SOURCE_SHA` to the stable version tag's exact application commit.
-It verifies that GitHub's tag resolves to that commit, checks all archive hashes,
-requires native smoke-test and real AWS acceptance metadata to be `PASS`, and
-compares the formula with the application generator's output. It then runs strict
-Homebrew audit, installs from the public release URLs, compares the installed
-native binary with its verified archive, and runs the offline formula test.
-Archive metadata does not include a source SHA; tag verification is separate.
-The workflow runs for formula changes or a manual dispatch after publication.
-Its version comes from `VERSION` in the application checkout pinned by
-`APP_SOURCE_REF`. A manual `version` input is optional and must match that version.
-For later releases, update the formula and both source variables to the reviewed
-release commit; the workflow needs no version edit.
-Tag verification uses the job's optional ephemeral GitHub token only for the
-application's exact tag API routes, avoiding shared anonymous API rate limits.
-Public release assets remain anonymous, and redirects strip authentication headers.
+[AWS SSO Profile Sync validation and formula updates](docs/aws-sso-profile-sync.md)
+describe the existing tool-specific pipelines. Those workflows currently validate
+that formula; another tool needs its own applicable checks before it is added.
 
-Homebrew setup precedes the application checkout, has a five-minute limit and
-uses the job's temporary repository token. Both checkouts disable credential
-persistence. The official setup action removes its temporary Git authentication
-header during post-job cleanup. The application checkout uses a separate
-runner-owned global Git configuration. Installation tests use isolated HOME and
-AWS file paths, with inherited AWS variables removed. CI does not publish, push,
-tag, merge or update formulae automatically.
-
-## Formula updates
-
-Use the application repository's `scripts/homebrew.py` against the version's four
-verified release archives and `SHA256SUMS`, then review the generated
-`Formula/aws-sso-profile-sync.rb`. Keep release URLs and hashes exactly as
-generated. Publish matching assets before merging the formula; never substitute
-placeholder hashes. The owner controls release publication and tap visibility.
+Licensed under [Apache-2.0](LICENSE). Each installed tool has its own license.
