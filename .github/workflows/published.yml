@@ -1,10 +1,10 @@
 name: Published formula validation
 on:
   pull_request:
-    paths: ['Formula/aws-sso-profile-sync.rb', '.github/workflows/published.yml', 'scripts/published.py', 'tests/test_published*.py']
+    paths: ['README.md', 'docs/**', 'Formula/aws-sso-profile-sync.rb', '.github/workflows/published.yml', 'scripts/published.py', 'tests/test_published*.py']
   push:
     branches: [main, 'feature/**']
-    paths: ['Formula/aws-sso-profile-sync.rb', '.github/workflows/published.yml', 'scripts/published.py', 'tests/test_published*.py']
+    paths: ['README.md', 'docs/**', 'Formula/aws-sso-profile-sync.rb', '.github/workflows/published.yml', 'scripts/published.py', 'tests/test_published*.py']
   workflow_dispatch:
     inputs:
       version:
