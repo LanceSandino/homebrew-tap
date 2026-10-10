@@ -35,6 +35,9 @@ Its version comes from `VERSION` in the application checkout pinned by
 `APP_SOURCE_REF`. A manual `version` input is optional and must match that version.
 For later releases, update the formula and both source variables to the reviewed
 release commit; the workflow needs no version edit.
+Tag verification uses the job's optional ephemeral GitHub token only for the
+application's exact tag API routes, avoiding shared anonymous API rate limits.
+Public release assets remain anonymous, and redirects strip authentication headers.
 
 Homebrew setup precedes the application checkout, has a five-minute limit and
 uses the job's temporary repository token. Both checkouts disable credential

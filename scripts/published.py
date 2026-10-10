@@ -4,12 +4,14 @@ import argparse
 import hashlib
 import io
 import json
+import os
 import pathlib
 import platform
 import re
 import subprocess
 import tarfile
 import urllib.parse
+import urllib.error
 import urllib.request
 
 PROJECT = 'LanceSandino/aws-sso-profile-sync'
@@ -84,15 +86,33 @@ def validate_url(url):
 class GitHubRedirects(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, msg, headers, newurl):
         validate_url(newurl)
-        return super().redirect_request(request, fp, code, msg, headers, newurl)
+        redirected = super().redirect_request(request, fp, code, msg, headers, newurl)
+        if redirected is not None:
+            for collection in (redirected.headers, redirected.unredirected_hdrs):
+                for name in list(collection):
+                    if name.lower() in ('authorization', 'proxy-authorization'):
+                        del collection[name]
+        return redirected
 
 
 def download(url, limit):
     validate_url(url)
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), GitHubRedirects())
-    request = urllib.request.Request(url, headers={'User-Agent': 'aws-sso-profile-sync-homebrew-validation'})
-    with opener.open(request, timeout=30) as response:
-        data = response.read(limit + 1)
+    headers = {'User-Agent': 'aws-sso-profile-sync-homebrew-validation'}
+    tag_route = (r'https://api\.github\.com(?::443)?/repos/' + re.escape(PROJECT)
+                 + r'/git/(?:ref/tags/v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)|tags/[0-9a-f]{40})')
+    token = os.environ.get('PUBLISHED_GITHUB_TOKEN', '')
+    if token and re.fullmatch(tag_route, url):
+        headers['Authorization'] = 'Bearer ' + token
+    request = urllib.request.Request(url, headers=headers)
+    try:
+        with opener.open(request, timeout=30) as response:
+            data = response.read(limit + 1)
+    except urllib.error.HTTPError as error:
+        error.close()
+        raise ValueError('Published release HTTP request failed (HTTP ' + str(error.code) + ')') from None
+    except (urllib.error.URLError, OSError, ValueError):
+        raise ValueError('Published release HTTP request failed') from None
     if len(data) > limit:
         raise ValueError('Release response exceeds size bound')
     return data
