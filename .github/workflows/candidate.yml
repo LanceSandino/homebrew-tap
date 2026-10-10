@@ -7,7 +7,7 @@ on:
     inputs:
       app_ref:
         description: Application source commit or review branch available to this runner
-        default: feature/release-candidate
+        default: feature/release-review
         required: true
         type: string
 permissions:
@@ -35,17 +35,22 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+      - name: Set up Homebrew for the private tap
+        uses: Homebrew/actions/setup-homebrew@fccef3b26268fc4a788fd7ad7c189f3a105cbf13
+        timeout-minutes: 5
+        with:
+          token: ${{ github.token }}
+          stable: true
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: LanceSandino/aws-sso-profile-sync
-          ref: ${{ inputs.app_ref || vars.APP_SOURCE_REF || 'feature/release-candidate' }}
+          ref: ${{ inputs.app_ref || vars.APP_SOURCE_REF || 'feature/release-review' }}
           path: application
           persist-credentials: false
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: '1.27.1'
           cache: false
-      - uses: Homebrew/actions/setup-homebrew@fccef3b26268fc4a788fd7ad7c189f3a105cbf13
       - name: Build four isolated candidate archives and generate formula
         shell: bash
         run: |
@@ -59,12 +64,32 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          brew tap --custom-remote LanceSandino/tap "$GITHUB_WORKSPACE"
           tap_root=$(brew --repository LanceSandino/tap)
           mkdir -p "$tap_root/Formula"
           cp Formula/aws-sso-profile-sync.rb "$tap_root/Formula/"
+          if brew command trust >/dev/null 2>&1; then
+            brew trust --formula LanceSandino/tap/aws-sso-profile-sync
+          fi
           brew style "$tap_root/Formula/aws-sso-profile-sync.rb"
           brew audit --strict LanceSandino/tap/aws-sso-profile-sync
+      - name: Verify native Homebrew preserves release and build metadata versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          tap_root=$(brew --repository LanceSandino/tap)
+          python3 - "$tap_root/Formula/aws-sso-profile-sync.rb" "$(cat application/VERSION)" <<'PY'
+          import json, pathlib, subprocess, sys
+          formula=pathlib.Path(sys.argv[1]); release=sys.argv[2]; original=formula.read_text()
+          try:
+              for expected in (release, '1.2.3-rc.1+build.01', '2.0.0-preview.04', '2.0.0-123'):
+                  formula.write_text(original.replace(release, expected))
+                  result=subprocess.run(['brew', 'info', '--json=v2', 'LanceSandino/tap/aws-sso-profile-sync'],
+                                        capture_output=True, text=True, timeout=30, check=True)
+                  actual=json.loads(result.stdout)['formulae'][0]['versions']['stable']
+                  if actual != expected: raise SystemExit('Homebrew did not preserve exact SemVer')
+          finally:
+              formula.write_text(original)
+          PY
       - name: Install candidate via loopback archives and run offline formula test
         shell: bash
         run: |

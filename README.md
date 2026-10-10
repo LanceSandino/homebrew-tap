@@ -22,7 +22,14 @@ procedure documented in the application repository.
 The candidate workflow checks style/audit/install using freshly built local
 archives rather than unpublished release URLs. Set repository variable
 `APP_SOURCE_REF` to the reviewable AWS SSO Profile Sync commit or feature branch,
-or provide `app_ref` when dispatching it. The application source revision must be
+or provide `app_ref` when dispatching it. The default is `feature/release-review`.
+Native parser checks preserve the exact release version and SemVer build metadata.
+Homebrew setup runs before the application checkout, has a five-minute limit and
+uses the job's temporary repository token for this private tap. Both checkouts
+disable credential persistence; the official setup action removes its temporary
+Git authentication header during post-job cleanup.
+On Homebrew versions that support explicit trust, CI trusts only the generated
+application formula. The application source revision must be
 available to the runner; missing/private/inaccessible source fails the job. CI
 does not publish, push, tag, merge or update formulae automatically.
 
