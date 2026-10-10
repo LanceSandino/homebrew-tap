@@ -24,6 +24,22 @@ def headers(request):
 
 
 class PublishedHTTPTests(unittest.TestCase):
+    def test_documentation_changes_trigger_both_published_workflow_events(self):
+        workflow = (ROOT / '.github/workflows/published.yml').read_text()
+        changed = ('README.md', 'docs/aws-sso-profile-sync.md', 'docs/guides/new-tool.md')
+        for event in ('pull_request', 'push'):
+            block = re.search(r'^  ' + event + r':\n((?:    .*\n)+)', workflow, re.MULTILINE)
+            self.assertIsNotNone(block, event)
+            expression = re.search(r'^\s+paths:\s*(\[.*\])\s*$', block[1], re.MULTILINE)
+            self.assertIsNotNone(expression, event)
+            patterns = ast.literal_eval(expression[1])
+            self.assertIn('README.md', patterns, event)
+            self.assertIn('docs/**', patterns, event)
+            for path in changed:
+                with self.subTest(event=event, path=path):
+                    self.assertTrue(any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns),
+                                    'Documentation change would not trigger published validation')
+
     def test_verifier_changes_trigger_both_published_workflow_events(self):
         workflow = (ROOT / '.github/workflows/published.yml').read_text()
         changed = ('Formula/aws-sso-profile-sync.rb', '.github/workflows/published.yml',
