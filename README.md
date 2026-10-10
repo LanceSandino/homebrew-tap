@@ -31,6 +31,10 @@ Homebrew audit, installs from the public release URLs, compares the installed
 native binary with its verified archive, and runs the offline formula test.
 Archive metadata does not include a source SHA; tag verification is separate.
 The workflow runs for formula changes or a manual dispatch after publication.
+Its version comes from `VERSION` in the application checkout pinned by
+`APP_SOURCE_REF`. A manual `version` input is optional and must match that version.
+For later releases, update the formula and both source variables to the reviewed
+release commit; the workflow needs no version edit.
 
 Homebrew setup precedes the application checkout, has a five-minute limit and
 uses the job's temporary repository token. Both checkouts disable credential
