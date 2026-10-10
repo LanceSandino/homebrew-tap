@@ -24,6 +24,12 @@ archives rather than unpublished release URLs. Set repository variable
 `APP_SOURCE_REF` to the reviewable AWS SSO Profile Sync commit or feature branch,
 or provide `app_ref` when dispatching it. The default is `feature/release-review`.
 Native parser checks preserve the exact release version and SemVer build metadata.
+
+The accepted AWS SSO Profile Sync candidate is
+[`d96e372e1abdd0f76b21d487f0a54a591f08fd9c`](https://github.com/LanceSandino/aws-sso-profile-sync/tree/d96e372e1abdd0f76b21d487f0a54a591f08fd9c)
+(version `2.0.0-rc.1`). The repository variable `APP_SOURCE_REF` pins candidate
+validation to this exact source commit.
+
 Homebrew setup runs before the application checkout, has a five-minute limit and
 uses the job's temporary repository token for this private tap. Both checkouts
 disable credential persistence; the official setup action removes its temporary
