@@ -1,6 +1,6 @@
 # AWS SSO Profile Sync formula maintenance
 
-[AWS SSO Profile Sync 2.0.1](https://github.com/LanceSandino/aws-sso-profile-sync/releases/tag/v2.0.1)
+[AWS SSO Profile Sync 2.1.0](https://github.com/LanceSandino/aws-sso-profile-sync/releases/tag/v2.1.0)
 is published and installable from this public tap. Native candidate and actual
 public installation checks passed on Linux amd64/arm64 and macOS Intel/ARM.
 
@@ -12,7 +12,7 @@ brew test LanceSandino/tap/aws-sso-profile-sync
 The formula installs the published CLI archive, with no GUI, service or AWS CLI
 dependency. Its offline test uses disposable HOME and explicit AWS paths. Real
 AWS acceptance is recorded in the
-[application's tagged acceptance record](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.0.1/.github/release-acceptance.json);
+[application's tagged acceptance record](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.1.0/.github/release-acceptance.json);
 tap CI never accesses real AWS or personal configuration.
 
 ## Validation
