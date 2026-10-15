@@ -1,0 +1,75 @@
+name: SessionSift formula
+# Installs the actual public SessionSift release through this tap on each native
+# target and runs the formula test in a disposable home.
+on:
+  pull_request:
+    paths: ['Formula/sessionsift.rb', 'docs/sessionsift.md', '.github/workflows/sessionsift.yml', '.github/workflows/update-sessionsift.yml']
+  push:
+    branches: [main, 'feature/**', 'update/**']
+    paths: ['Formula/sessionsift.rb', 'docs/sessionsift.md', '.github/workflows/sessionsift.yml', '.github/workflows/update-sessionsift.yml']
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sessionsift-formula-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_INSTALL_FROM_API: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@fccef3b26268fc4a788fd7ad7c189f3a105cbf13
+        timeout-minutes: 5
+        with:
+          token: ${{ github.token }}
+          stable: true
+      - name: Check formula against the published release checksums
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/.*releases\/download\/v\([^/]*\)\/.*/\1/p' Formula/sessionsift.rb | sort -u)
+          test "$(printf '%s\n' "$version" | wc -l)" -eq 1
+          gh release download "v$version" -R LanceSandino/sessionsift -p SHA256SUMS -D "$RUNNER_TEMP/release"
+          python3 - Formula/sessionsift.rb "$RUNNER_TEMP/release/SHA256SUMS" <<'PY'
+          import re, sys
+          formula = open(sys.argv[1]).read()
+          sums = dict(reversed(line.split('  ', 1)) for line in open(sys.argv[2]).read().splitlines())
+          pairs = re.findall(r'url "[^"]*/([^/"]+\.tar\.gz)"\s+sha256 "([0-9a-f]{64})"', formula)
+          if len(pairs) != 2: raise SystemExit('expected macOS Intel and Linux amd64 archives')
+          for name, digest in pairs:
+              if sums.get(name) != digest: raise SystemExit(f'{name} does not match published SHA256SUMS')
+          print('Formula checksums match the published release')
+          PY
+          printf 'SESSIONSIFT_VERSION=%s\n' "$version" >> "$GITHUB_ENV"
+      - name: Style, audit, install and test through the tap
+        shell: bash
+        run: |
+          set -euo pipefail
+          export HOME="$RUNNER_TEMP/formula-home"
+          export HOMEBREW_CACHE="$RUNNER_TEMP/formula-cache" HOMEBREW_LOGS="$RUNNER_TEMP/formula-logs"
+          mkdir -p "$HOME" "$HOMEBREW_CACHE" "$HOMEBREW_LOGS"
+          formula=LanceSandino/tap/sessionsift
+          tap=$(brew --repository LanceSandino/tap)
+          cmp "$tap/Formula/sessionsift.rb" Formula/sessionsift.rb
+          brew style "$tap/Formula/sessionsift.rb"
+          brew audit --strict "$formula"
+          brew install --formula "$formula"
+          brew test "$formula"
+          test "$(sessionsift version)" = "$SESSIONSIFT_VERSION"
+          SESSIONSIFT_HOME="$HOME/state" CODEX_HOME="$HOME/codex" CLAUDE_HOME="$HOME/claude" sessionsift doctor
+          brew uninstall --formula "$formula"
