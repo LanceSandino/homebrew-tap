@@ -1,0 +1,74 @@
+name: Update SessionSift
+# Regenerates Formula/sessionsift.rb from the latest SessionSift release and opens
+# a pull request, then starts the native install test on that branch.
+on:
+  schedule:
+    - cron: '41 7 * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sessionsift-release]
+permissions:
+  contents: read
+concurrency:
+  group: update-sessionsift
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Download the latest release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=$(gh release view -R LanceSandino/sessionsift --json tagName -q .tagName)
+          version=${tag#v}
+          gh release download "$tag" -R LanceSandino/sessionsift -D "$RUNNER_TEMP/release" \
+            -p 'sessionsift_*.tar.gz' -p SHA256SUMS
+          printf 'tag=%s\nversion=%s\n' "$tag" "$version" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: LanceSandino/sessionsift
+          ref: ${{ steps.release.outputs.tag }}
+          path: application
+          persist-credentials: false
+      - name: Regenerate the formula from verified archives
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          python3 application/scripts/release.py version --expect "$VERSION"
+          python3 application/scripts/homebrew.py --version-file application/VERSION \
+            --dist-dir "$RUNNER_TEMP/release" --output Formula/sessionsift.rb
+          rm -rf application
+      - name: Open a pull request when the formula changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- Formula/sessionsift.rb; then
+            echo "Formula already matches SessionSift $VERSION"
+            exit 0
+          fi
+          branch="update/sessionsift-$VERSION"
+          if git ls-remote --exit-code origin "refs/heads/$branch" >/dev/null; then
+            echo "$branch already exists"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git add Formula/sessionsift.rb
+          git commit -m "Update SessionSift to $VERSION"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "Update SessionSift to $VERSION" \
+            --body "Regenerated from the verified SessionSift $VERSION release archives. The native install test runs on this branch."
+          gh workflow run sessionsift.yml --ref "$branch"
