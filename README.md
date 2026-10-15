@@ -8,6 +8,7 @@ installs a published release and verifies its SHA-256 checksum.
 | Tool | What it does | Install |
 | --- | --- | --- |
 | [AWS SSO Profile Sync](https://github.com/LanceSandino/aws-sso-profile-sync) | Keeps AWS CLI profiles in sync with IAM Identity Center accounts and roles, with explicit login, reviewable plans and guarded updates. | `brew install LanceSandino/tap/aws-sso-profile-sync` |
+| [SessionSift](https://github.com/LanceSandino/sessionsift) | Local, read-only analysis of Codex and Claude Code sessions, with a loopback dashboard and ten read-only MCP tools. macOS Intel and Linux amd64. | `brew install LanceSandino/tap/sessionsift` |
 
 This table lists every formula currently in the tap. More tools can be added as
 their releases and installation checks are ready.
@@ -36,7 +37,7 @@ and an offline installation test. Keep each tool's release lifecycle separate;
 adding a formula must not change another tool's release or source pins.
 
 [AWS SSO Profile Sync validation and formula updates](docs/aws-sso-profile-sync.md)
-describe the existing tool-specific pipelines. Those workflows currently validate
+and [SessionSift formula maintenance](docs/sessionsift.md) describe the existing tool-specific pipelines. Those workflows currently validate
 that formula; another tool needs its own applicable checks before it is added.
 
 Licensed under [Apache-2.0](LICENSE). Each installed tool has its own license.
