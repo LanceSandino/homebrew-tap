@@ -8,22 +8,22 @@ class Sessionsift < Formula
 
   on_macos do
     on_intel do
-      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.0/sessionsift-2.1.0-rc12-public-darwin-amd64.tar.gz"
-      sha256 "fd77785482075c0d3698eaf4eaf0f80bb9954fa93318e43478eb8136421a267c"
+      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.0/sessionsift-2.1.0-rc13-public-darwin-amd64.tar.gz"
+      sha256 "4d2c6a4b6a617fd5f046872780ef64e522c3da6ed2bdec5dd837ddf880bee234"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.0/sessionsift-2.1.0-rc12-public-linux-amd64.tar.gz"
-      sha256 "9aea7fdf9728c1270d8de284aef432be1be1f8366f9f28df499472b8af565e0d"
+      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.0/sessionsift-2.1.0-rc13-public-linux-amd64.tar.gz"
+      sha256 "39d65fd70f4f02317457af9a531665d5088f307fd103d33896bc6428d3f68712"
     end
   end
 
   def install
     bin.install "sessionsift"
     doc.install "NOTICE", "README.md", "SECURITY.md"
-    doc.install "sessionsift-2.1.0-rc12-public.spdx.json"
+    doc.install "sessionsift-2.1.0-rc13-public.spdx.json"
     pkgshare.install "LICENSE"
   end
 
