@@ -1,8 +1,9 @@
 # AWS SSO Profile Sync formula maintenance
 
-[AWS SSO Profile Sync 2.1.0](https://github.com/LanceSandino/aws-sso-profile-sync/releases/tag/v2.1.0)
-is published and installable from this public tap. Native candidate and actual
-public installation checks passed on Linux amd64/arm64 and macOS Intel/ARM.
+[AWS SSO Profile Sync 2.1.1](https://github.com/LanceSandino/aws-sso-profile-sync/releases/tag/v2.1.1),
+a security release built with Go 1.27.3, is published and installable from this
+public tap. Native candidate and actual public installation checks passed on
+Linux amd64/arm64 and macOS Intel/ARM.
 
 ```sh
 brew install LanceSandino/tap/aws-sso-profile-sync
@@ -10,10 +11,14 @@ brew test LanceSandino/tap/aws-sso-profile-sync
 ```
 
 The formula installs the published CLI archive, with no GUI, service or AWS CLI
-dependency. Its offline test uses disposable HOME and explicit AWS paths. Real
-AWS acceptance is recorded in the
-[application's tagged acceptance record](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.1.0/.github/release-acceptance.json);
-tap CI never accesses real AWS or personal configuration.
+dependency. Its offline test uses disposable HOME and explicit AWS paths. Each
+release records its acceptance basis in the
+[application's tagged acceptance record](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.1.1/.github/release-acceptance.json).
+Patch and minor releases such as 2.1.1 are accepted by the application's
+automated validation; major releases also require real AWS acceptance, which
+last passed for
+[2.1.0](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.1.0/.github/release-acceptance.json).
+Tap CI never accesses real AWS or personal configuration.
 
 ## Validation
 
@@ -24,8 +29,10 @@ loopback server. `APP_SOURCE_REF` pins the reviewed application commit; a manual
 depending on the workflow's legacy review-branch fallback.
 
 `published.yml` verifies all four public release archives, combined checksums,
-native/real-acceptance metadata, the exact generated formula and tag-to-source
-binding before installing the native public archive. `PUBLISHED_SOURCE_SHA` pins
+native and release-acceptance metadata, the exact generated formula and
+tag-to-source binding before installing the native public archive. Archive
+metadata must show `real_aws_acceptance` `PASS`, or, for a version other than
+`X.0.0`, `release_acceptance` `AUTOMATED` with `real_aws_acceptance` `NOT_RUN`. `PUBLISHED_SOURCE_SHA` pins
 the published tag's exact commit. Its version comes from `VERSION` in the
 application checkout pinned by `APP_SOURCE_REF`; an optional manual `version`
 must match. For an update, change both source variables to the reviewed release
