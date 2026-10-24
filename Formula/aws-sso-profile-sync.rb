@@ -6,27 +6,27 @@ class AwsSsoProfileSync < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.0/aws-sso-profile-sync_2.1.0_darwin_arm64.tar.gz"
-      sha256 "5e86e12e022f8e53baad8b4c8b189902883d58aaed1460d14e3dd0f7ea6d4e20"
+      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.1/aws-sso-profile-sync_2.1.1_darwin_arm64.tar.gz"
+      sha256 "9c604ecda87f5a06239e861b33a695eeb8347a70286b3ad53512c5531d3e8728"
     end
     on_intel do
-      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.0/aws-sso-profile-sync_2.1.0_darwin_amd64.tar.gz"
-      sha256 "65b822df40b0901931fe995ceef618c77d6dca2bf77a62fda0eca027beaddde0"
+      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.1/aws-sso-profile-sync_2.1.1_darwin_amd64.tar.gz"
+      sha256 "f0c87e72acd0dcaaa7398c712158a5a2f4c4c3a83252945b84675f191df2d5c1"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.0/aws-sso-profile-sync_2.1.0_linux_arm64.tar.gz"
-      sha256 "605591620a504c0f044911a94110d02c6f07b294f453872b93f563a4e9590d72"
+      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.1/aws-sso-profile-sync_2.1.1_linux_arm64.tar.gz"
+      sha256 "80a2b4d8cee0c154e89107e7a829525687435ae20ba494b2feab6ce988399efb"
     end
     on_intel do
-      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.0/aws-sso-profile-sync_2.1.0_linux_amd64.tar.gz"
-      sha256 "48b6c1e0e9065d2ec7032e0bacf0693492f0f24a878057493cceadfe9f262cc8"
+      url "https://github.com/LanceSandino/aws-sso-profile-sync/releases/download/v2.1.1/aws-sso-profile-sync_2.1.1_linux_amd64.tar.gz"
+      sha256 "abc61b2a1ff432dafa32aac4e3748007f0c279dc9ba46855efee8ed32c7ce78d"
     end
   end
 
-  version "2.1.0" if version.to_s != "2.1.0"
+  version "2.1.1" if version.to_s != "2.1.1"
 
   def install
     bin.install "aws-sso-profile-sync"

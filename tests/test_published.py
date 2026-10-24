@@ -16,14 +16,14 @@ SPEC.loader.exec_module(published)
 
 
 class PublishedTests(unittest.TestCase):
-    def archive(self, **changes):
-        metadata = {'version': '2.0.0', 'target': 'darwin/amd64',
+    def archive(self, release='2.0.0', **changes):
+        metadata = {'version': release, 'target': 'darwin/amd64',
                     'execution': 'NATIVE_OFFLINE_SMOKE_PASS', 'real_aws_acceptance': 'PASS',
                     'source_date_epoch': 1}
         metadata.update(changes)
         stream = io.BytesIO()
         with tarfile.open(fileobj=stream, mode='w:gz') as archive:
-            root = 'aws-sso-profile-sync_2.0.0_darwin_amd64'
+            root = 'aws-sso-profile-sync_' + release + '_darwin_amd64'
             for directory in (root, root + '/docs', root + '/scripts'):
                 info = tarfile.TarInfo(directory); info.type = tarfile.DIRTYPE
                 archive.addfile(info)
@@ -62,6 +62,31 @@ class PublishedTests(unittest.TestCase):
                         {'execution': 'NOT_RUN'}, {'real_aws_acceptance': 'PENDING'}):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 published.inspect_archive(self.archive(**changes), '2.0.0', 'darwin/amd64')
+
+    def test_automated_acceptance_qualifies_patch_and_minor_releases_only(self):
+        binary = hashlib.sha256(b'synthetic binary').hexdigest()
+        automated = {'release_acceptance': 'AUTOMATED', 'real_aws_acceptance': 'NOT_RUN'}
+        for version in ('2.1.1', '2.2.0', '3.0.1'):
+            with self.subTest(version=version):
+                self.assertEqual(published.inspect_archive(self.archive(version, **automated), version, 'darwin/amd64'), binary)
+        for version in ('2.0.0', '3.0.0'):
+            with self.subTest(major=version), self.assertRaises(ValueError):
+                published.inspect_archive(self.archive(version, **automated), version, 'darwin/amd64')
+        for changes in ({'release_acceptance': 'NOT_RUN', 'real_aws_acceptance': 'NOT_RUN'},
+                        {'release_acceptance': 'AUTOMATED', 'real_aws_acceptance': 'PASS'},
+                        {'release_acceptance': 'AUTOMATED', 'real_aws_acceptance': 'PENDING'},
+                        {'release_acceptance': 'AUTOMATED', 'real_aws_acceptance': None},
+                        {'release_acceptance': 'REAL_AWS', 'real_aws_acceptance': 'NOT_RUN'},
+                        {'real_aws_acceptance': 'NOT_RUN'}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                published.inspect_archive(self.archive('2.1.1', **changes), '2.1.1', 'darwin/amd64')
+
+    def test_real_aws_acceptance_still_qualifies_major_releases(self):
+        binary = hashlib.sha256(b'synthetic binary').hexdigest()
+        for version, changes in (('2.0.0', {}), ('3.0.0', {'release_acceptance': 'REAL_AWS'}),
+                                 ('2.1.1', {'release_acceptance': 'REAL_AWS'})):
+            with self.subTest(version=version, changes=changes):
+                self.assertEqual(published.inspect_archive(self.archive(version, **changes), version, 'darwin/amd64'), binary)
 
     def test_archive_does_not_extract_unsafe_or_duplicate_members(self):
         for name in ('../BUILD-METADATA.json', 'BUILD-METADATA.json'):
