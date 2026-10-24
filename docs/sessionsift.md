@@ -1,6 +1,6 @@
 # SessionSift formula maintenance
 
-[SessionSift 2.1.0](https://github.com/LanceSandino/sessionsift/releases/tag/v2.1.0)
+[SessionSift 2.1.1](https://github.com/LanceSandino/sessionsift/releases/tag/v2.1.1)
 is a local-only tool: it reads Codex and Claude Code transcripts on your machine,
 serves a dashboard on `127.0.0.1` and offers ten read-only MCP tools. It needs no
 account or cloud service.

@@ -8,19 +8,19 @@ class Sessionsift < Formula
 
   on_macos do
     on_intel do
-      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.0/sessionsift_2.1.0_darwin_amd64.tar.gz"
-      sha256 "0be032020b6916714abc500690c85bfee4fd84c1a2a0464147b67166a350c56e"
+      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.1/sessionsift_2.1.1_darwin_amd64.tar.gz"
+      sha256 "33ee0efd8f36d5c44d336563091f89e92208a8bc60869f3a91765c226dd554c3"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.0/sessionsift_2.1.0_linux_amd64.tar.gz"
-      sha256 "f99adafbe46a695039934749d318c1a544883a6de5e01479b44d6114843ba804"
+      url "https://github.com/LanceSandino/sessionsift/releases/download/v2.1.1/sessionsift_2.1.1_linux_amd64.tar.gz"
+      sha256 "49bb2803a818042ef25d1482a8a739c382caa4a97e07e4faca9e9499cb6b8ad6"
     end
   end
 
-  version "2.1.0" if version.to_s != "2.1.0"
+  version "2.1.1" if version.to_s != "2.1.1"
 
   def install
     bin.install "sessionsift"
