@@ -43,6 +43,17 @@ def checksums(text, names):
     return result
 
 
+def release_accepted(metadata, version):
+    """Real AWS acceptance qualifies any release; automated acceptance only patch and minor releases."""
+    basis = metadata.get('release_acceptance')
+    if metadata.get('real_aws_acceptance') == 'PASS':
+        # Archives published before the basis field existed record real acceptance only.
+        return basis in (None, 'REAL_AWS')
+    match = re.fullmatch(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)', version)
+    major_release = not match or (match[2] == '0' and match[3] == '0')
+    return basis == 'AUTOMATED' and metadata.get('real_aws_acceptance') == 'NOT_RUN' and not major_release
+
+
 def inspect_archive(data, version, target):
     root = 'aws-sso-profile-sync_' + version + '_' + target.replace('/', '_')
     with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as archive:
@@ -67,10 +78,11 @@ def inspect_archive(data, version, target):
         if metadata_member.size > 65536:
             raise ValueError('Oversized build metadata')
         metadata = json.loads(archive.extractfile(metadata_member).read())
-        expected = {'version': version, 'target': target, 'execution': 'NATIVE_OFFLINE_SMOKE_PASS',
-                    'real_aws_acceptance': 'PASS'}
+        expected = {'version': version, 'target': target, 'execution': 'NATIVE_OFFLINE_SMOKE_PASS'}
         if not isinstance(metadata, dict) or any(metadata.get(key) != value for key, value in expected.items()):
-            raise ValueError('Published archive native or real acceptance metadata differs')
+            raise ValueError('Published archive native metadata differs')
+        if not release_accepted(metadata, version):
+            raise ValueError('Published archive release acceptance metadata differs')
         binary = members[root + '/aws-sso-profile-sync']
         if binary.size > 50 * 1024 * 1024:
             raise ValueError('Oversized release binary')
