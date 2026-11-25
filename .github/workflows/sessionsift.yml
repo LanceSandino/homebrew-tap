@@ -66,6 +66,8 @@ jobs:
           formula=LanceSandino/tap/sessionsift
           tap=$(brew --repository LanceSandino/tap)
           cmp "$tap/Formula/sessionsift.rb" Formula/sessionsift.rb
+          # The trust store follows HOME, so trust this formula again in the disposable home.
+          brew trust --formula "$formula"
           brew style "$tap/Formula/sessionsift.rb"
           brew audit --strict "$formula"
           brew install --formula "$formula"

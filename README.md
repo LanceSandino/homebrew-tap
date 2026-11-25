@@ -16,15 +16,24 @@ their releases and installation checks are ready.
 ## Install and update
 
 Install a tool with its fully qualified command from the table; Homebrew adds the
-tap automatically. To add it separately and browse its formulas:
+tap automatically and trusts only that formula. Homebrew does not load formulae
+from a tap you have not [trusted](https://docs.brew.sh/Tap-Trust), so to add the
+tap separately and browse its formulas, trust it first:
 
 ```sh
 brew tap LanceSandino/tap
+brew trust LanceSandino/tap
 brew search LanceSandino/tap/
 brew info LanceSandino/tap/aws-sso-profile-sync
 ```
 
+To trust one formula instead of the whole tap, run
+`brew trust --formula LanceSandino/tap/<formula>`.
+
 Update installed tools with `brew update` followed by `brew upgrade <formula>`.
+If `brew doctor` reports `lancesandino/tap` as not trusted, for example after
+installing with a Homebrew release that did not record trust, run
+`brew trust --formula LanceSandino/tap/<formula>` once so upgrades continue.
 Remove a tool with `brew uninstall <formula>`. Removing a formula does not remove
 the application's configuration or data. Read the linked application docs for
 usage, supported platforms, configuration and recovery.
