@@ -31,10 +31,10 @@ publisher identity.
 
 `sessionsift.yml` runs on every formula change, on the update branches and
 weekly. On Linux amd64 and macOS Intel runners it checks the formula's
-checksums against the release's published `SHA256SUMS`, then runs
-`brew style`, `brew audit --strict`, `brew install`, `brew test` and
-`sessionsift doctor` in a disposable home before uninstalling. The formula test
-never reads real transcripts.
+checksums against the release's published `SHA256SUMS`, then trusts the
+SessionSift formula in a disposable home and runs `brew style`,
+`brew audit --strict`, `brew install`, `brew test` and `sessionsift doctor` there
+before uninstalling. The formula test never reads real transcripts.
 
 ## Updates
 
