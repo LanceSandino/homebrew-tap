@@ -1,7 +1,7 @@
 # AWS SSO Profile Sync formula maintenance
 
-[AWS SSO Profile Sync 2.1.1](https://github.com/LanceSandino/aws-sso-profile-sync/releases/tag/v2.1.1),
-a security release built with Go 1.27.3, is published and installable from this
+[AWS SSO Profile Sync 2.1.2](https://github.com/LanceSandino/aws-sso-profile-sync/releases/tag/v2.1.2),
+a security release built with Go 1.27.4, is published and installable from this
 public tap. Native candidate and actual public installation checks passed on
 Linux amd64/arm64 and macOS Intel/ARM.
 
@@ -13,8 +13,8 @@ brew test LanceSandino/tap/aws-sso-profile-sync
 The formula installs the published CLI archive, with no GUI, service or AWS CLI
 dependency. Its offline test uses disposable HOME and explicit AWS paths. Each
 release records its acceptance basis in the
-[application's tagged acceptance record](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.1.1/.github/release-acceptance.json).
-Patch and minor releases such as 2.1.1 are accepted by the application's
+[application's tagged acceptance record](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.1.2/.github/release-acceptance.json).
+Patch and minor releases such as 2.1.2 are accepted by the application's
 automated validation; major releases also require real AWS acceptance, which
 last passed for
 [2.1.0](https://github.com/LanceSandino/aws-sso-profile-sync/blob/v2.1.0/.github/release-acceptance.json).
