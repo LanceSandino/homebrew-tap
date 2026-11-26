@@ -4,6 +4,8 @@ class Sessionsift < Formula
   homepage "https://github.com/LanceSandino/sessionsift"
   license "PolyForm-Noncommercial-1.0.0"
 
+  deprecate! date: "2026-11-25", because: :repo_archived
+
   depends_on arch: :x86_64
 
   on_macos do
